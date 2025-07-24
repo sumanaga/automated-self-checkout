@@ -22,7 +22,7 @@ jobs:
         run: |
           git submodule update  --init --recursive --remote -f
         env:
-          GITHUB_TOKEN: ${{ secrets.GEN_PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.SSO_TOKEN }}
       - name: Commit changes
         run: | 
           git add -A
