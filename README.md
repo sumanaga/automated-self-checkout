@@ -9,7 +9,7 @@
 [![Discord](https://discord.com/api/guilds/1150892043120414780/widget.png?style=shield)](https://discord.gg/2SpNRF4SCn)
 
 > **Warning**  
-> The **main** branch of this repository contains work-in-progress development code for the upcoming release, and is **not guaranteed to be stable or working**.
+> The **main** branch of this repository contains work-in-progress development code for the upcoming release, and is **not guaranteed to be stable or working**
 >
 > **The source for the latest release can be found at [Releases](https://github.com/intel-retail/automated-self-checkout/releases).**
 
