@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-FROM intel/dlstreamer:2025.1.2-ubuntu22 AS base
+FROM intel/dlstreamer:2025.1.2-ubuntu22@sha256:6676724fd378b1a4956ec7d3eecbe7b07a7f04fbccc6a11c9c8d082ecc9c817d AS base
 USER root
 FROM base AS build-default
 COPY ./requirements.txt /requirements.txt
