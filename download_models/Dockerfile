@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM python:3.10-slim
+FROM python:3.10-slim@sha256:b827cb94f814204932b4959a932fe9096643e6d5025e31465445c0302d5f9bc4
 
 
 # Install system dependencies and CA certificates for SSL
