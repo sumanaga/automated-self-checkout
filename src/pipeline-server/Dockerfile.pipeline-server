@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-FROM intel/edge-video-analytics-microservice:2.3.0
+FROM intel/edge-video-analytics-microservice:2.3.0@sha256:7a53dec4bac3cd583c9c0df41648d3bfdb69923d50916e2b5ca4ba45bf54b59e
 
 COPY ./requirements.txt /requirements.txt
 RUN pip3 install --upgrade pip --no-cache-dir -r /requirements.txt
