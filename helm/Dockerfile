@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-FROM intel/dlstreamer:2024.1.1-dev-ubuntu22
+FROM intel/dlstreamer:2024.1.1-dev-ubuntu22@sha256:af4e34a06ca43c410109bb25995b4b99380d17a4ae9efec44c42cb86a45efbc8
 USER root
 
 # Add proxy environment variables
