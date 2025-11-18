@@ -41,6 +41,14 @@
 
 ## 🚀 QuickStart
 
+Clone the repo with the below command
+```
+git clone -b <release-or-tag> --single-branch https://github.com/intel-retail/automated-self-checkout
+```
+>Replace <release-or-tag> with the version you want to clone (for example, **v2.0.0**).
+```
+git clone -b v2.0.0 --single-branch https://github.com/intel-retail/automated-self-checkout
+```
 ### **NOTE:**  
 If you want to run the Application using pre-built container images, set the flag:
 
