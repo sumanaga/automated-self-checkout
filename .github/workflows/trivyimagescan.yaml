@@ -42,16 +42,16 @@ jobs:
           env:
             REGISTRY: "false"
 
-        - name: Extract PIPELINE_RUNNER_IMAGE from Makefile
-          id: extract_image
+        - name: Extract ASC value from VERSION file
+          id: extract_asc
           run: |
-            IMAGE=$(grep ^PIPELINE_RUNNER_IMAGE Makefile | head -n 1 | cut -d '=' -f2 | xargs)
-            echo "PIPELINE_RUNNER_IMAGE=$IMAGE" >> $GITHUB_OUTPUT
+            ASC_TAG=$(grep '^ASC=' VERSION | cut -d= -f2)
+            echo "ASC_TAG=$ASC_TAG" >> $GITHUB_OUTPUT
           
         - name: Run Trivy vulnerability scanner
           uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2
           with:
-            image-ref: '${{ steps.extract_image.outputs.PIPELINE_RUNNER_IMAGE }}'
+            image-ref: 'pipeline-runner-asc:${{ steps.extract_image.outputs.ASC_TAG}}'
             format: 'table'
             severity: 'CRITICAL,HIGH'
             output: 'trivy-asc-results.txt'
