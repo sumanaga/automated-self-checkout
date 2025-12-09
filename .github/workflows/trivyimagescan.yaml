@@ -45,6 +45,8 @@ jobs:
         - name: Extract ASC value from VERSION file
           id: extract_asc
           run: |
+            pwd
+            ls -ltra
             ASC_TAG=$(grep '^ASC=' VERSION | cut -d= -f2)
             echo "ASC_TAG=$ASC_TAG" >> $GITHUB_OUTPUT
           
