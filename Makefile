@@ -24,18 +24,19 @@ RESULTS_DIR ?= $(PWD)/benchmark
 
 
 
-TAG ?= $(shell cat VERSION)
+ASC_TAG := $(shell grep '^ASC=' VERSION | cut -d= -f2)
+PT_TAG := $(shell grep '^PT=' VERSION | cut -d= -f2)
 
 #local image references
-MODELDOWNLOADER_IMAGE ?= model-downloader-asc:$(TAG)
-PIPELINE_RUNNER_IMAGE ?= pipeline-runner-asc:$(TAG)
-BENCHMARK_IMAGE ?= benchmark:latest
+MODELDOWNLOADER_IMAGE ?= model-downloader-asc:$(ASC_TAG)
+PIPELINE_RUNNER_IMAGE ?= pipeline-runner-asc:$(ASC_TAG)
+BENCHMARK_IMAGE ?= benchmark:$(PT_TAG)
 REGISTRY ?= true
 
 # Registry image references
-REGISTRY_MODEL_DOWNLOADER ?= intel/model-downloader-asc:$(TAG)
-REGISTRY_PIPELINE_RUNNER ?= intel/pipeline-runner-asc:$(TAG)
-REGISTRY_BENCHMARK ?= intel/retail-benchmark:3.3.1
+REGISTRY_MODEL_DOWNLOADER ?= intel/model-downloader-asc:$(ASC_TAG)
+REGISTRY_PIPELINE_RUNNER ?= intel/pipeline-runner-asc:$(ASC_TAG)
+REGISTRY_BENCHMARK ?= intel/retail-benchmark:$(PT_TAG)
 
 download-models: check-models-needed
 
