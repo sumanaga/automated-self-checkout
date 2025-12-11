@@ -24,8 +24,8 @@ RESULTS_DIR ?= $(PWD)/benchmark
 
 
 
-ASC_TAG := $(shell grep '^ASC=' VERSION | cut -d= -f2)
-PT_TAG := $(shell grep '^PT=' VERSION | cut -d= -f2)
+ASC_TAG := $(shell cat VERSION)
+PT_TAG := $(shell cat performance-tools/VERSION)
 
 #local image references
 MODELDOWNLOADER_IMAGE ?= model-downloader-asc:$(ASC_TAG)
@@ -104,21 +104,21 @@ build-pipeline-server: | download-models update-submodules download-sample-video
 	docker build --build-arg HTTPS_PROXY=${HTTPS_PROXY} --build-arg HTTP_PROXY=${HTTP_PROXY} -t dlstreamer:pipeline-server -f src/pipeline-server/Dockerfile.pipeline-server src/pipeline-server
 
 build-sensors:
-	docker compose -f src/${DOCKER_COMPOSE_SENSORS} build --build-arg HTTPS_PROXY=${HTTPS_PROXY} --build-arg HTTP_PROXY=${HTTP_PROXY} 
+	ASC_TAG=$(ASC_TAG) docker compose -f src/${DOCKER_COMPOSE_SENSORS} build --build-arg HTTPS_PROXY=${HTTPS_PROXY} --build-arg HTTP_PROXY=${HTTP_PROXY} 
 
 run:
 	@if [ "$(REGISTRY)" = "true" ]; then \
         echo "Running registry version..."; \
         echo "############### Running registry mode ###############################"; \
-        docker compose -f src/$(DOCKER_COMPOSE_REGISTRY) up -d; \
+        ASC_TAG=$(ASC_TAG) docker compose -f src/$(DOCKER_COMPOSE_REGISTRY) up -d; \
 	else \
         echo "Running standard version..."; \
         echo "############### Running STANDARD mode ###############################"; \
-        docker compose -f src/$(DOCKER_COMPOSE) up -d; \
+        ASC_TAG=$(ASC_TAG) docker compose -f src/$(DOCKER_COMPOSE) up -d; \
 	fi
 
 run-sensors:
-	docker compose -f src/${DOCKER_COMPOSE_SENSORS} up -d
+	ASC_TAG=$(ASC_TAG) docker compose -f src/${DOCKER_COMPOSE_SENSORS} up -d
 
 
 run-render-mode:
@@ -133,23 +133,23 @@ run-render-mode:
 	@xhost +local:docker
 	@if [ "$(REGISTRY)" = "true" ]; then \
         echo "Running registry version with render mode..."; \
-        RENDER_MODE=1 docker compose -f src/$(DOCKER_COMPOSE_REGISTRY) up -d; \
+        ASC_TAG=$(ASC_TAG) RENDER_MODE=1 docker compose -f src/$(DOCKER_COMPOSE_REGISTRY) up -d; \
 	else \
         echo "Running standard version with render mode..."; \
-        RENDER_MODE=1 docker compose -f src/$(DOCKER_COMPOSE) up -d; \
+        ASC_TAG=$(ASC_TAG) RENDER_MODE=1 docker compose -f src/$(DOCKER_COMPOSE) up -d; \
 	fi
 
 down:
 	@if [ "$(REGISTRY)" = "true" ]; then \
 		echo "Stopping registry demo containers..."; \
-		docker compose -f src/$(DOCKER_COMPOSE_REGISTRY) down; \
+		ASC_TAG=$(ASC_TAG) docker compose -f src/$(DOCKER_COMPOSE_REGISTRY) down; \
 		echo "Registry demo containers stopped and removed."; \
 	else \
-		docker compose -f src/$(DOCKER_COMPOSE) down; \
+		ASC_TAG=$(ASC_TAG) docker compose -f src/$(DOCKER_COMPOSE) down; \
 	fi
 
 down-sensors:
-	docker compose -f src/${DOCKER_COMPOSE_SENSORS} down
+	ASC_TAG=$(ASC_TAG) docker compose -f src/${DOCKER_COMPOSE_SENSORS} down
 
 run-demo: | download-models update-submodules download-sample-videos
 	@echo "Building automated self checkout app"	
@@ -168,10 +168,10 @@ run-headless: | download-models update-submodules download-sample-videos
 	$(MAKE) run
 
 run-pipeline-server: | download-models update-submodules download-sample-videos
-	RETAIL_USE_CASE_ROOT=$(RETAIL_USE_CASE_ROOT) docker compose -f src/pipeline-server/docker-compose.pipeline-server.yml up -d
+	ASC_TAG=$(ASC_TAG) RETAIL_USE_CASE_ROOT=$(RETAIL_USE_CASE_ROOT) docker compose -f src/pipeline-server/docker-compose.pipeline-server.yml up -d
 
 down-pipeline-server:
-	docker compose -f src/pipeline-server/docker-compose.pipeline-server.yml down
+	ASC_TAG=$(ASC_TAG) docker compose -f src/pipeline-server/docker-compose.pipeline-server.yml down
 
 fetch-benchmark:
 	@echo "Fetching benchmark image from registry..."
@@ -186,7 +186,7 @@ build-benchmark:
 	else \
 		echo "Building pipeline-runner-asc img locally..."; \
 		docker build --build-arg HTTPS_PROXY=${HTTPS_PROXY} --build-arg HTTP_PROXY=${HTTP_PROXY} --target build-default -t $(PIPELINE_RUNNER_IMAGE) -f src/Dockerfile src/; \
-		cd performance-tools && $(MAKE) build-benchmark-docker; \
+		cd performance-tools && PT_TAG=$(PT_TAG) $(MAKE) build-benchmark-docker; \
 	fi
 
 benchmark: build-benchmark download-models download-sample-videos	
@@ -195,9 +195,9 @@ benchmark: build-benchmark download-models download-sample-videos
 	. venv/bin/activate && \
 	pip install -r requirements.txt && \
 	if [ "$(REGISTRY)" = "true" ]; then \
-		python benchmark.py --compose_file ../../src/$(DOCKER_COMPOSE_REGISTRY) --pipeline $(PIPELINE_COUNT) --results_dir $(RESULTS_DIR) --benchmark_type reg; \
+		ASC_TAG=$(ASC_TAG) PT_TAG=$(PT_TAG) python benchmark.py --compose_file ../../src/$(DOCKER_COMPOSE_REGISTRY) --pipeline $(PIPELINE_COUNT) --results_dir $(RESULTS_DIR) --benchmark_type reg; \
 	else \
-		python benchmark.py --compose_file ../../src/$(DOCKER_COMPOSE) --pipeline $(PIPELINE_COUNT) --results_dir $(RESULTS_DIR); \
+		ASC_TAG=$(ASC_TAG) PT_TAG=$(PT_TAG) python benchmark.py --compose_file ../../src/$(DOCKER_COMPOSE) --pipeline $(PIPELINE_COUNT) --results_dir $(RESULTS_DIR); \
 	fi && \
 	deactivate
 
@@ -227,7 +227,7 @@ benchmark-stream-density: build-benchmark download-models
 	. venv/bin/activate && \
 	pip install -r requirements.txt && \
 	if [ "$(REGISTRY)" = "true" ]; then \
-		python3 benchmark.py \
+		ASC_TAG=$(ASC_TAG) PT_TAG=$(PT_TAG) python3 benchmark.py \
 			--compose_file ../../src/$(DOCKER_COMPOSE_REGISTRY) \
 			--init_duration $(INIT_DURATION) \
 			--target_fps $(TARGET_FPS) \
@@ -236,7 +236,7 @@ benchmark-stream-density: build-benchmark download-models
 			--benchmark_type reg \
 			--results_dir $(RESULTS_DIR); \
 	else \
-		python3 benchmark.py \
+		ASC_TAG=$(ASC_TAG) PT_TAG=$(PT_TAG) python3 benchmark.py \
 			--compose_file ../../src/$(DOCKER_COMPOSE) \
 			--init_duration $(INIT_DURATION) \
 			--target_fps $(TARGET_FPS) \
@@ -253,10 +253,10 @@ benchmark-quickstart: build-benchmark download-models download-sample-videos
 	pip install -r requirements.txt && \
 	if [ "$(REGISTRY)" = "true" ]; then \
 		DEVICE_ENV=res/all-gpu.env RENDER_MODE=0 PIPELINE_SCRIPT=obj_detection_age_prediction.sh \
-		python benchmark.py --compose_file ../../src/docker-compose.yml --pipeline $(PIPELINE_COUNT) --results_dir $(RESULTS_DIR) --benchmark_type reg; \
+		ASC_TAG=$(ASC_TAG) PT_TAG=$(PT_TAG) python benchmark.py --compose_file ../../src/docker-compose.yml --pipeline $(PIPELINE_COUNT) --results_dir $(RESULTS_DIR) --benchmark_type reg; \
 	else \
 		DEVICE_ENV=res/all-gpu.env RENDER_MODE=0 PIPELINE_SCRIPT=obj_detection_age_prediction.sh \
-		python benchmark.py --compose_file ../../src/docker-compose.yml --pipeline $(PIPELINE_COUNT) --results_dir $(RESULTS_DIR); \
+		ASC_TAG=$(ASC_TAG) PT_TAG=$(PT_TAG) python benchmark.py --compose_file ../../src/docker-compose.yml --pipeline $(PIPELINE_COUNT) --results_dir $(RESULTS_DIR); \
 	fi && \
 	deactivate
 	$(MAKE) consolidate-metrics
